@@ -28,3 +28,5 @@ POST format {"address": _STELLAR_ADDRESS_ , "code": _FOUR_DIGIT_CODE_ }
 
 changes "verified" status to "True"
 
+hello
+
