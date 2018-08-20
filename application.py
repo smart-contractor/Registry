@@ -9,13 +9,21 @@ from flask_pymongo import PyMongo
 from flask_mail import Mail, Message
 
 
+import config
 
 application = Flask(__name__)
 
 #AWS
+#EDIT THIS LINE TO TEST GITHUB
 # Remember kids, always 'pip freeze!' before deploying to AWS.
 # eb init -p python-2.7 svalbard-registry --region us-east-2
 # eb create svalbard-registry-env
+# To push changes:
+# git init
+# git add .
+# git commit -m "comment" (must do this once to create repository "head")
+# eb deploy svalbard-registry-env --staged
+
 # live at http://svalbard-registry-env.bqaqwab2de.us-east-2.elasticbeanstalk.com/
 
 # Mail 
@@ -28,7 +36,7 @@ application.config['MAIL_PORT'] = 465
 application.config['MAIL_USE_TLS'] = False
 application.config['MAIL_USE_SSL'] = True
 application.config['MAIL_USERNAME'] = 'lagadonian2@gmail.com'
-application.config['MAIL_PASSWORD'] = 'sfwctydaxiqstwhd'
+application.config['MAIL_PASSWORD'] = config.mailpassword
 
 mail = Mail(application)
 
@@ -36,8 +44,8 @@ mail = Mail(application)
 # Database:
 # The database is located at https://mlab.com/databases/svalbard_registry.
 
-application.config['MONGO_DBNAME'] = 'svalbard_registry'
-application.config['MONGO_URI'] = 'mongodb://lagadonian:lagadonian1@ds217131.mlab.com:17131/svalbard_registry'
+application.config['MONGO_DBNAME'] = config.mongoname
+application.config['MONGO_URI'] = config.mongouri
 mongo = PyMongo(application)
 
 
@@ -56,6 +64,78 @@ def codemaker():
 def hello():
 	# Returns a generic homepage. 
     return render_template('index.html')
+
+@application.route("/check", methods=['GET', 'POST'])
+def check():
+    #gets the status of an address
+    if (request.method == 'POST'):
+
+        msg_json = request.get_json()
+        address = str(msg_json["address"])
+
+        addresses = mongo.db.addresses
+
+        flag = addresses.find_one({"address": address, "verified": "True"})
+
+        if flag:
+            return jsonify({'message': 'verified'})
+        else: return jsonify({'message': 'unverified'})
+    else: return jsonify({'message': 'send as address:address'})
+
+#returns active bounties
+#def getset():
+
+#Adds bounty to the database
+#
+@application.route("/bounty", methods=['GET', 'POST'])
+def bounty():
+    if (request.method == 'POST'):
+
+        msg_json = request.get_json()
+
+        address = str(msg_json["address"])
+        description = str(msg_json["description"])
+        amount = str(msg_json["amount"])
+        timeout = int(msg_json["timeout"])
+        maxsub = int(msg_json["maxsub"])
+        #status = 'closed', 'live', or 'finished'
+
+        #Generate transaction envelope to be signed that creates new wallet with bounty amount
+        #Create bounty object in mongodb
+
+        bounties = mongo.db.bounties
+        bounties.insert({'address': address,  
+            "description": description, 
+            "amount": amount,
+            "timeout": timeout,
+            "maxsub": maxsub,
+            "status": 'closed',
+            "submissions": [] })
+        #^add submission ids to submission
+        #^when a submission is added, it must be added to mongo.db.submissions
+        #and its id must be added to the bounty record...which must be closed
+        #when number of submissions = maxsub, set bounty to "closed"
+
+
+
+        #after bounty is added:
+
+        #Redirect user to sign transaction envelope
+        #Submit to stellar network
+        #Generate new transaction envelope
+        # - adds platform as main signer
+        # - adds preauth transaction for user to retrieve funds after X days
+        #Redirect user to sign this envelope
+        #Submit to stellar network
+
+        #When bounty is available, set bounty to "open"
+        #Redirect user to the bounty
+
+
+
+        return jsonify({'message': 'success'})
+    else: return jsonify({'message': 'hi'})
+
 
 @application.route("/register", methods=['GET', 'POST'])
 def register():
@@ -84,9 +164,9 @@ def register():
             mail.send(msg)
 
             return jsonify({'message': 'address registered'})
-        else: return jsonify({'message': 'error: address or email already registered'})
+        else: return jsonify({'message': 'error'})
     # Instructions:
-    else: return jsonify({'message': 'send as address:address'})
+    else: return jsonify({'message': 'send as address:address, address:address'})
 
 
 @application.route("/verify", methods=['GET', 'POST'])
@@ -108,9 +188,11 @@ def verify():
 		if flag:
 			addresses.update_one({"address": address}, {"$set": {"verified": "True"}})
 			return jsonify({'message': 'address verified'})
-		else: return jsonify({'message': 'address or code invalid'})
+		else: return jsonify({'message': 'error'})
 	#Instructions:
 	else: return jsonify({'message': 'send as address:address, code:code'})
+
+
 
 
 

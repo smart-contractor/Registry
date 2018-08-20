@@ -2,6 +2,8 @@ branch-defaults:
   default:
     environment: svalbard-registry-env
     group_suffix: null
+  master:
+    environment: svalbard-registry-env
 global:
   application_name: svalbard-registry
   branch: null
