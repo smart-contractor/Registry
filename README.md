@@ -1,18 +1,18 @@
 # Registry
-NOTE: need to create a config.py file with:
+NOTE: need to create a config.py file with the following variables
 
-emailaddress:
+emailaddress =
 
-emailpassword:
+emailpassword =
 
-mongouri:
+mongouri =
 
-mongoname:
-
-
+mongoname =
 
 
-PURPOSE: perform back-end operations
+
+
+PURPOSE: perform back-end operations. Currently supports registering and verifying new users with email verification, and allowing only registered users to add jobs to the database. 
 
 live at: localhost:5000
 
