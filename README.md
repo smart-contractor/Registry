@@ -3,7 +3,7 @@ purpose: tie Stellar addresses to a form of ID (for now: an email address, later
 
 API:
 
-current address: http://svalbard-registry-env.bqaqwab2de.us-east-2.elasticbeanstalk.com
+current address: ******
 
 returns { "message": _ }
 
