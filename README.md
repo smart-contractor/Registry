@@ -1,14 +1,20 @@
 # Registry
 NOTE: 
+
 - need to create a config.py file with:
+
 emailaddress:
+
 emailpassword:
+
 mongouri:
+
 mongoname:
 
 
 
 PURPOSE: perform back-end operations
+
 live at: localhost:5000
 
 
